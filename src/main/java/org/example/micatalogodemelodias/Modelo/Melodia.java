@@ -1,5 +1,7 @@
 package org.example.micatalogodemelodias.Modelo;
 
+import java.util.Objects;
+
 public class Melodia {
     private int id;
     private String nombre; // nombre de la canción
@@ -35,8 +37,6 @@ public class Melodia {
     }
 
     // getters
-
-
     public int getId() {
         return id;
     }
@@ -116,6 +116,4 @@ public class Melodia {
 
         return cantante.equals(mel.getCantante()) && (anio == mel.getAnio());
     }
-
-
 }

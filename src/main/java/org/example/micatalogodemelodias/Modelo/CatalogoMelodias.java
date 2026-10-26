@@ -44,11 +44,6 @@ public class CatalogoMelodias {
         return sb.toString();
     }
 
-    // removerMelodia(int id)
-    // ArrayList<Melodia> buscar(String nombreMelodia)
-    // Melodia buscar(int id)
-    // actualizarMelodia(int id, String nombreMelodia, String compositor, int anio, String genero, String cantante, double precio, String formato)
-    // double obtenerPrecioColeccion()
     // ArrayList<> todosLosGeneros() // utlizar String o Enum
     public ArrayList<String> obtenerTodosLosGeneros(){
         ArrayList<String> generos = (ArrayList<String>)canciones
@@ -67,27 +62,144 @@ public class CatalogoMelodias {
         return generos;
     }
 
+    /**
+     * Metodos añadidos
+     * ******************************************************************
+     **/
+    // metodo que busca una melodia por su nombre y retorna los datos de la melodia
+    public Melodia buscarMelodia(String nombre){
+        for(Melodia melodia : canciones){
+            if(melodia.getNombre().equalsIgnoreCase(nombre)){
+                return melodia;
+            }
+        }
+        return null;
+    }
+
+    // Metodo para buscar una melodia por Id
+    public Melodia buscarMelodiaPorId(int id){
+        for (Melodia melodia : canciones){
+            if(melodia.getId() == id){
+                return melodia;
+            }
+        }
+        return null;
+    }
+
+    // Metodo que remueve una cancion del catalogo por su nombre
+    public boolean removerMelodiaPorNombre(String nombre){
+        return canciones.removeIf(
+                melodia -> melodia.getNombre().equalsIgnoreCase(nombre)
+        );
+    }
+    // metodo para remover melodia por su ID
+    public boolean removerMelodiaPorId(int id){
+        return canciones.removeIf(melodia -> melodia.getId() == id);
+    }
+
+    // Metodo para corregir algun dato de la melodia si te equivocas, este caso: el precio
+    // recibe el nombre y el nuevo precio y retorna si se actualizo o no
+    public boolean corregirPrecio(String nombre, double nuevoPrecio){
+        Melodia melodia = buscarMelodia(nombre);
+        if(melodia != null){
+            melodia.setPrecio(nuevoPrecio);
+            return true;
+        }
+        return false;
+    }
+
+    // metodo para obtener el valor de la coleccion, retorna el valor total de la coleccion
+    public double obtenerPrecioColeccion(){
+        return canciones.stream()
+                .mapToDouble(Melodia::getPrecio)
+                .sum();
+    }
+
+    // metodo que retorna la cantidad de cantantes sin repetir
+    public int cantidadCantantes(){
+        HashSet<String> cantantes = new HashSet<>();
+        canciones.forEach(
+                melodia -> cantantes.add(melodia.getCantante())
+        );
+        return cantantes.size();
+    }
+
+    // metodo que muestra los cantantes de la coleccion sin repetir
+    public HashSet<String> obtenerCantantes(){
+        HashSet<String> cantantes = new HashSet<>();
+        canciones.forEach(
+                melodia -> cantantes.add(melodia.getCantante())
+        );
+        return cantantes;
+    }
+
+    // Metodo que obtiene los formatos de las melodias de la coleccion y la cantidad por formato
+    public HashMap<String, Integer> obtenerFormatos(){
+        HashMap<String, Integer> formatos = new HashMap<>();
+        canciones.forEach(melodia -> {
+            String formato = melodia.getFormato();
+            formatos.put(formato, formatos.getOrDefault(formato,0)+1);
+        });
+        return formatos;
+    }
 
     // ArrayList<Melodia> cancionesPorCompositor(String compositor)
-    public HashMap<String, ArrayList<Melodia>> melodiasPorCompositor() {
-        HashMap<String, ArrayList<Melodia>> mapa = new HashMap<>();
-        canciones.forEach(m -> {
-            mapa.putIfAbsent(m.getCompositor(),
-                    new ArrayList<>());
-            mapa.get(m.getCompositor()).add(m);
-        });
-        return mapa;
-    }
-    // ArrayList<Melodia> melodiasPorAnio(int anio)
-    //ordenarMelodiasPorPrecio()
-
-    //ordenarMelodiasPorAnio()
-    public ArrayList<Melodia> ordenarMelodiasPorAnio() {
+    // metodo para obtener las melodias por compositor
+    public ArrayList<Melodia> melodiasPorCompositor(String compositor){
         return canciones.stream()
-                .sorted(Comparator.comparingInt(Melodia::getAnio))
+                .filter(m -> m.getCompositor()
+                        .equalsIgnoreCase(compositor))
                 .collect(Collectors.toCollection(ArrayList::new));
     }
 
-    //ordenarMelodiasPorCantante()
+    // metodo para obtener las melodias por cantante
+    public ArrayList<Melodia> melodiasPorCantante(String cantante){
+        ArrayList<Melodia> resultado = new ArrayList<>();
+        for(Melodia melodia : canciones){
+            if (melodia.getCantante().equalsIgnoreCase(cantante)){
+                resultado.add(melodia);
+            }
+        }
+        return resultado;
+    }
 
+    //ordenarMelodiasPorAnio()
+    // metodo que busca las melodias por precio
+    public ArrayList<Melodia> melodiasPorAnio(int anio) {
+        ArrayList<Melodia> resultado = new ArrayList<>();
+        for (Melodia melodia : canciones){
+            if (melodia.getAnio() == anio){
+                resultado.add(melodia);
+            }
+        }
+        return resultado;
+    }
+
+    // metodo que ordena las melodias por precio
+    public void melodiasPorPrecio(){
+        canciones.sort((m1,m2) -> Double.compare(m1.getPrecio(), m2.getPrecio()));
+    }
+
+    // metodo que ordena las melodias por cantante
+    public ArrayList<Melodia> ordenarMelodiasPorCantante(){
+        return canciones.stream()
+                .sorted(Comparator.comparing(Melodia::getCantante))
+                .collect(Collectors.toCollection(ArrayList::new));
+    }
+
+    // metodo para actualizar todos los datos de una melodia
+    public boolean actualizarMelodia(int id, String nombre, String compositor, int anio, String genero, String cantante, double precio, String formato){
+        Melodia melodia = buscarMelodiaPorId(id);
+        if(melodia == null){
+            return false;
+        }
+        melodia.setNombre(nombre);
+        melodia.setCompositor(compositor);
+        melodia.setAnio(anio);
+        melodia.setGenero(genero);
+        melodia.setCantante(cantante);
+        melodia.setPrecio(precio);
+        melodia.setFormato(formato);
+        return true;
+    }
 }
